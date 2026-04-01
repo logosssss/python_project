@@ -9,10 +9,10 @@ def get_connection():
     方便在其他模块里复用。
     """
     return mysql.connector.connect(
-        host="39.108.59.205",
-        user="jp",
-        password="jp2016JP",  # 官方驱动推荐使用 password 参数名
-        database="python_test",
+        host="",
+        user="",
+        password="",  # 官方驱动推荐使用 password 参数名
+        database="",
     )
 
 
