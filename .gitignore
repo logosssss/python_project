@@ -110,3 +110,12 @@ venv.bak/
 dmypy.json
 
 .idea/
+
+# Local editor
+.vscode/
+
+# Secrets (copy from dbMysqlConfig.cnf.example)
+**/dbMysqlConfig.cnf
+
+# Crawler local state
+Day03/book_crawl_state.json

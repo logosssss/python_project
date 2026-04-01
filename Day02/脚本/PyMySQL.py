@@ -1,21 +1,46 @@
 #!/usr/bin/python3
 
+# PyMySQL 是在 Python3.x 版本中用于连接 MySQL 服务器的一个库，Python2中则使用mysqldb。
 import pymysql
 
-# 打开数据库连接
-db = pymysql.connect("localhost", "root", "123456", "seckill")
 
-# 使用 cursor() 方法创建一个游标对象 cursor
-cursor = db.cursor()
+def get_connection():
+    """
+    创建并返回一个到 MySQL 的连接。
+    方便在其他模块里复用。
+    """
+    return pymysql.connect(
+        host="39.108.59.205",
+        user="jp",
+        password="jp2016JP",
+        database="python_test",
+        charset="utf8mb4",
+    )
 
-# 使用 execute()  方法执行 SQL 查询
-cursor.execute("SELECT * FROM seckill")
 
-# 使用 fetchall() 方法获取s所有数据.
-data = cursor.fetchall()
+def test_connection():
+    """
+    简单的启动测试：
+    - 连接数据库
+    - 查询 seckill 表前几条记录
+    - 打印结果
+    """
+    db = get_connection()
+    print("DB connection opened:", db)
 
-print(data)
+    try:
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM seckill LIMIT 5")
+        data = cursor.fetchall()
 
-# 关闭数据库连接
-db.close()
+        print("Query result (first 5 rows):")
+        for row in data:
+            print(row)
+    finally:
+        db.close()
+        print("DB connection closed.")
 
+
+if __name__ == "__main__":
+    # 直接运行 PyMySQL.py 时，执行一次连通性测试
+    test_connection()

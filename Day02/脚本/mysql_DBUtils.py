@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
+# DBUtils是一套Python数据库连接池包，并允许对非线程安全的数据库接口进行线程安全包装。DBUtils来自Webware for Python。
+# DBUtils提供两种外部接口：
+# * PersistentDB ：提供线程专用的数据库连接，并自动管理连接。
+# * PooledDB ：提供线程间可共享的数据库连接，并自动管理连接。
 import pymysql
 import os
 import configparser
 from pymysql.cursors import DictCursor
-from DBUtils.PooledDB import PooledDB
+from dbutils.pooled_db import PooledDB
 
 
 class Config(object):
@@ -17,18 +21,21 @@ class Config(object):
     user = root
     password = 123456
     """
-
+    #初始化配置信息
     def __init__(self, config_filename="dbMysqlConfig.cnf"):
         file_path = os.path.join(os.path.dirname(__file__), config_filename)
         self.cf = configparser.ConfigParser()
         self.cf.read(file_path)
 
+    #获取配置文件中的所有section
     def get_sections(self):
         return self.cf.sections()
 
+    #获取配置文件中的所有选项
     def get_options(self, section):
         return self.cf.options(section)
 
+    #获取配置文件中的所有内容
     def get_content(self, section):
         result = {}
         for option in self.get_options(section):
@@ -36,7 +43,7 @@ class Config(object):
             result[option] = int(value) if value.isdigit() else value
         return result
 
-
+#基础数据库连接池类
 class BasePymysqlPool(object):
     def __init__(self, host, port, user, password, db_name):
         self.db_host = host
@@ -70,19 +77,20 @@ class MyPymysqlPool(BasePymysqlPool):
         @return MySQLdb.connection
         """
         if MyPymysqlPool.__pool is None:
-            __pool = PooledDB(creator=pymysql,
-                              mincached=1,
-                              maxcached=20,
-                              host=self.db_host,
-                              port=self.db_port,
-                              user=self.user,
-                              passwd=self.password,
-                              db=self.db,
-                              use_unicode=True,
-                              charset="utf8",
-                              cursorclass=DictCursor)
-            print("12211212")
-        return __pool.connection()
+            MyPymysqlPool.__pool = PooledDB(
+                creator=pymysql,
+                mincached=1,
+                maxcached=20,
+                host=self.db_host,
+                port=self.db_port,
+                user=self.user,
+                passwd=self.password,
+                db=self.db,
+                use_unicode=True,
+                charset="utf8",
+                cursorclass=DictCursor,
+            )
+        return MyPymysqlPool.__pool.connection()
 
     def getAll(self, sql, param=None):
         """

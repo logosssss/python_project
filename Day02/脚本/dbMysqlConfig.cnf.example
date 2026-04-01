@@ -1,0 +1,6 @@
+[dbMysql]
+host = your.mysql.host
+port = 3306
+user = your_user
+password = your_password
+db_name = your_database
