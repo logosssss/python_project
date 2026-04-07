@@ -16,10 +16,10 @@ class Config(object):
     # Config().get_content("user_information")
     配置文件里面的参数
     [dbMysql]
-    host = 192.168.1.180
-    port = 3306
-    user = root
-    password = 123456
+    host = 
+    port = 
+    user = 
+    password = 
     """
     #初始化配置信息
     def __init__(self, config_filename="dbMysqlConfig.cnf"):

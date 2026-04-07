@@ -10,9 +10,9 @@ def get_connection():
     方便在其他模块里复用。
     """
     return pymysql.connect(
-        host="39.108.59.205",
-        user="jp",
-        password="jp2016JP",
+        host="",
+        user="",
+        password="",
         database="python_test",
         charset="utf8mb4",
     )
