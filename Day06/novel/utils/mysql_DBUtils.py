@@ -2,7 +2,11 @@
 # -*- coding:utf-8 -*-
 import pymysql, os, configparser
 from pymysql.cursors import DictCursor
-from DBUtils.PooledDB import PooledDB
+try:
+    from dbutils.pooled_db import PooledDB
+except ImportError:
+    # 旧版包名（若仍使用 DBUtils 2.x）
+    from DBUtils.PooledDB import PooledDB  # type: ignore
 
 
 class Config(object):
@@ -68,18 +72,20 @@ class MyPymysqlPool(BasePymysqlPool):
         @return MySQLdb.connection
         """
         if MyPymysqlPool.__pool is None:
-            __pool = PooledDB(creator=pymysql,
-                              mincached=1,
-                              maxcached=20,
-                              host=self.db_host,
-                              port=self.db_port,
-                              user=self.user,
-                              passwd=self.password,
-                              db=self.db,
-                              use_unicode=True,
-                              charset="utf8",
-                              cursorclass=DictCursor)
-        return __pool.connection()
+            MyPymysqlPool.__pool = PooledDB(
+                creator=pymysql,
+                mincached=1,
+                maxcached=20,
+                host=self.db_host,
+                port=self.db_port,
+                user=self.user,
+                passwd=self.password,
+                db=self.db,
+                use_unicode=True,
+                charset="utf8",
+                cursorclass=DictCursor,
+            )
+        return MyPymysqlPool.__pool.connection()
 
     def getAll(self, sql, param=None):
         """
@@ -204,12 +210,22 @@ class MyPymysqlPool(BasePymysqlPool):
         self._conn.close()
 
 
-mysql = MyPymysqlPool("dbMysql")
+class _LazyMysqlPool:
+    """首次访问时才建连，避免 import 阶段就连库（无 MySQL 时 manage.py check 也能过）。"""
+
+    _inst = None
+
+    def __getattr__(self, name: str):
+        if _LazyMysqlPool._inst is None:
+            _LazyMysqlPool._inst = MyPymysqlPool("dbMysql")
+        return getattr(_LazyMysqlPool._inst, name)
+
+
+mysql = _LazyMysqlPool()
 
 if __name__ == '__main__':
     sqlAll = "select id, title from novel limit 2;"
     result = mysql.getAll(sqlAll)
     print(result)
-    # 释放资源
     mysql.dispose()
 

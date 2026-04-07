@@ -1,0 +1,9 @@
+# 在「本文件所在目录」执行安装（不要在仓库根目录 E:\Python 直接 pip -r，会找不到文件）：
+#   cd E:\Python\Day06\novel
+#   python -m pip install -r requirements.txt
+
+# 需 Python 3.10+；与 MySQL 5.7 兼容见 novel.backends.mysql57
+Django>=4.2,<6
+PyMySQL>=1.1.0
+DBUtils>=3.0.0
+numpy>=1.24.0

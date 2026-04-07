@@ -7,10 +7,10 @@ from utils.mysql_DBUtils import mysql
 def main(request):
     sql = "SELECT id,title FROM novel LIMIT 10;"
     result = mysql.getAll(sql)
-    # result = json.dumps(result, cls=MyEncoder, ensure_ascii=False, indent=4)
-    # result = json.loads(result)
+    if not result:
+        result = []
     context = {'novel_list': result}
-    return render(request, 'novel_list.html',  context)
+    return render(request, 'novel_list.html', context)
 
 
 # def chapter(request):
@@ -32,8 +32,19 @@ def chapter(request, novel_id):
     sql = "SELECT title,content FROM novel where id = %(id)s;"
     param = {"id": novel_id}
     result = mysql.getOne(sql, param)
-    # result['title'] = result['title'].decode('utf-8')
-    # result['content'] = result['content'].decode('utf-8')
-    context = {'novel': result}
+    if not result:
+        return render(
+            request,
+            'novel.html',
+            {'novel': {'title': '未找到', 'content': '没有该章节记录（请检查 id 或数据库数据）。'}},
+            status=404,
+        )
+    title = result.get("title")
+    content = result.get("content")
+    if isinstance(title, bytes):
+        title = title.decode("utf-8", errors="replace")
+    if isinstance(content, bytes):
+        content = content.decode("utf-8", errors="replace")
+    context = {"novel": {"title": title, "content": content}}
     return render(request, 'novel.html', context)
 

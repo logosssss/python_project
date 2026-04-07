@@ -15,6 +15,9 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Django 3.2+ 建议显式声明，消除 models.W042 警告
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -25,7 +28,7 @@ SECRET_KEY = 'd682ta7hlr776k@12f052r4)!**m4fazm#-0%av-+_zch+n-z-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -75,16 +78,18 @@ WSGI_APPLICATION = 'novel.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# 与 utils/dbMysqlConfig.cnf 保持一致，避免 Django ORM / migrate 连 127.0.0.1 而本机未装 MySQL 报错
+# 若只在本地调试且本机有 MySQL，可改回 HOST=127.0.0.1 并填写本地库名、账号
 DATABASES = {
-    'default': {
-        #   'ENGINE': 'django.db.backends.sqlite3',
-        #   'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'book',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
-        'POST': '3306',
+    "default": {
+        # 远程 MySQL 5.7 时用自定义后端；若已升级到 MySQL 8+ 可改回 django.db.backends.mysql
+        "ENGINE": "novel.backends.mysql57",
+        "NAME": "python_test",
+        "USER": "jp",
+        "PASSWORD": "jp2016JP",
+        "HOST": "39.108.59.205",
+        "PORT": "3306",
+        "OPTIONS": {"charset": "utf8mb4"},
     }
 }
 
